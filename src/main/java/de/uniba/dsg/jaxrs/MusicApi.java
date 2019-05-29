@@ -6,6 +6,7 @@ import java.util.Set;
 import javax.ws.rs.ApplicationPath;
 import javax.ws.rs.core.Application;
 
+import de.uniba.dsg.jaxrs.resources.ArtistResource;
 import de.uniba.dsg.jaxrs.resources.SearchResource;
 
 @ApplicationPath("/")
@@ -19,6 +20,7 @@ public class MusicApi extends Application {
     public Set<Class<?>> getClasses() {
         Set<Class<?>> resources = new HashSet<>();
         resources.add(SearchResource.class);
+        resources.add(ArtistResource.class);
         return resources;
     }
 }

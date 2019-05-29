@@ -24,7 +24,7 @@ public interface ArtistApi {
      * Always return top songs for Germany (DE)
      * Size of the track list must be <= 5
      */
-    List<Song> getTopTracks(String artistId);
+    //List<Song> getTopTracks(String artistId);
 
     /**
      * TODO:
@@ -34,5 +34,5 @@ public interface ArtistApi {
      * Subsequent calls should not always return the same similar artist
      * Handle requests with unknown artist IDs correctly
      */
-    Interpret getSimilarArtist(String artistId);
+    //Interpret getSimilarArtist(String artistId);
 }

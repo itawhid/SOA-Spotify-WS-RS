@@ -9,6 +9,7 @@ import java.util.logging.Logger;
 import javax.jws.WebService;
 
 import de.uniba.dsg.Configuration;
+import de.uniba.dsg.jaxws.resources.ArtistResource;
 import de.uniba.dsg.jaxws.resources.SearchResource;
 import de.uniba.dsg.models.Interpret;
 import de.uniba.dsg.models.Playlist;
@@ -38,18 +39,18 @@ public class MusicApiImpl implements MusicApi {
 
     @Override
     public Interpret getArtist(String artistId) {
-        return null;
+        return new ArtistResource().getArtist(artistId);
     }
 
-    @Override
-    public List<Song> getTopTracks(String artistId) {
-        return null;
-    }
-
-    @Override
-    public Interpret getSimilarArtist(String artistId) {
-        return null;
-    }
+//    @Override
+//    public List<Song> getTopTracks(String artistId) {
+//        return null;
+//    }
+//
+//    @Override
+//    public Interpret getSimilarArtist(String artistId) {
+//        return null;
+//    }
 
     @Override
     public List<Release> getNewReleases(String country, int size) {
