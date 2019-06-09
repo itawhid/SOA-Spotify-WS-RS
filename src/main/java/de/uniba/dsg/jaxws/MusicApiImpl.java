@@ -42,10 +42,10 @@ public class MusicApiImpl implements MusicApi {
         return new ArtistResource().getArtist(artistId);
     }
 
-//    @Override
-//    public List<Song> getTopTracks(String artistId) {
-//        return null;
-//    }
+    @Override
+    public List<Song> getTopTracks(String artistId) {
+        return new ArtistResource().getTopTracks(artistId);
+    }
 //
 //    @Override
 //    public Interpret getSimilarArtist(String artistId) {

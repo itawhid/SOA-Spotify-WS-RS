@@ -1,9 +1,13 @@
 package de.uniba.dsg.jaxrs.resources;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import com.neovisionaries.i18n.CountryCode;
+import com.wrapper.spotify.model_objects.specification.Paging;
+import com.wrapper.spotify.model_objects.specification.Track;
 import com.wrapper.spotify.requests.data.artists.GetArtistRequest;
 import com.wrapper.spotify.exceptions.SpotifyWebApiException;
 import com.wrapper.spotify.model_objects.specification.Artist;
@@ -54,14 +58,31 @@ public class ArtistResource implements ArtistApi {
         }
     }
 
-//    @Override
-//    @GET
-//    public List<Song> getTopTracks(@PathParam("artist-id") String artistId) {
-//        if(artistId == null){
-//            throw new ClientRequestException(new ErrorMessage("Required query parameter is missing: artist-id"));
-//        }
-//        GetArtistsTopTracksRequest artistTopTracksRequest = CustomSpotifyApi.getInstance(). .limit(5).build();
-//        return null;
-//    }
+    @Override
+    @GET
+    @Path("top-tracks")
+    public List<Song> getTopTracks(@PathParam("artist-id") String artistId) {
+        if(artistId == null){
+            throw new ClientRequestException(new ErrorMessage("Required query parameter is missing: artist-id"));
+        }
+        GetArtistsTopTracksRequest artistTopTracksRequest = CustomSpotifyApi.getInstance().getArtistsTopTracks(artistId,CountryCode.US).build();
+        try {
+            Track[] tracks = artistTopTracksRequest.execute();
+            List<Song> songs = new ArrayList<Song>();
+            System.out.println(tracks);
+            for(int i=0; i<5 ; i++) {
+                Song song = new Song();
+
+                song.setArtist(tracks[i].getArtists().toString());
+                song.setTitle(tracks[i].getName());
+                song.setDuration(tracks[i].getDurationMs());
+
+                songs.add(song);
+            }
+            return songs;
+        }catch (SpotifyWebApiException | IOException e) {
+            throw new RemoteApiException(new ErrorMessage("cannot find remote server"));
+        }
+    }
 }
 
