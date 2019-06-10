@@ -9,6 +9,7 @@ import de.uniba.dsg.models.Song;
 
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.ClientBuilder;
+import javax.ws.rs.core.GenericType;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.util.List;
@@ -20,6 +21,7 @@ public class ArtistResource implements ArtistApi {
         Client client = ClientBuilder.newClient();
         Response response = client.target(MusicApiImpl.restServerUri)
                 .path("/artists/{artist-id}")
+                .resolveTemplate("artist-id", artistId)
                 .request(MediaType.APPLICATION_JSON_TYPE)
                 .get();
 
@@ -46,11 +48,13 @@ public class ArtistResource implements ArtistApi {
         Client client = ClientBuilder.newClient();
         Response response = client.target(MusicApiImpl.restServerUri)
                 .path("/artists/{artist-id}/top-tracks")
+                .resolveTemplate("artist-id", artistId)
                 .request(MediaType.APPLICATION_JSON_TYPE)
                 .get();
 
         if (response.getStatus() == 200) {
-           return null;
+            List<Song> songs = response.readEntity(new GenericType<List<Song>>(){});
+            return songs;
         } else if (response.getStatus() == 400) {
             String errorMessage = response.readEntity(ErrorMessage.class).getMessage();
             throw new MusicRecommenderFault("A client side error occurred", errorMessage);

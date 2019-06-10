@@ -26,10 +26,11 @@ import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 
-@Path("artists/{artist-id}")
+@Path("artists")
 public class ArtistResource implements ArtistApi {
     @Override
     @GET
+    @Path("{artist-id}")
     public Interpret getArtist(@PathParam("artist-id") String artistId) {
         if(artistId == null){
             throw new ClientRequestException(new ErrorMessage("Required query parameter is missing: artist-id"));
@@ -60,20 +61,20 @@ public class ArtistResource implements ArtistApi {
 
     @Override
     @GET
-    @Path("top-tracks")
+    @Path("{artist-id}/top-tracks")
     public List<Song> getTopTracks(@PathParam("artist-id") String artistId) {
+
         if(artistId == null){
             throw new ClientRequestException(new ErrorMessage("Required query parameter is missing: artist-id"));
         }
-        GetArtistsTopTracksRequest artistTopTracksRequest = CustomSpotifyApi.getInstance().getArtistsTopTracks(artistId,CountryCode.US).build();
+        GetArtistsTopTracksRequest artistTopTracksRequest = CustomSpotifyApi.getInstance().getArtistsTopTracks(artistId,CountryCode.DE).build();
         try {
             Track[] tracks = artistTopTracksRequest.execute();
             List<Song> songs = new ArrayList<Song>();
-            System.out.println(tracks);
             for(int i=0; i<5 ; i++) {
                 Song song = new Song();
 
-                song.setArtist(tracks[i].getArtists().toString());
+                song.setArtist(tracks[i].getArtists()[0].getName());
                 song.setTitle(tracks[i].getName());
                 song.setDuration(tracks[i].getDurationMs());
 
