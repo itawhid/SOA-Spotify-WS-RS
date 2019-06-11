@@ -50,7 +50,9 @@ public class PlaylistResource implements PlaylistApi {
             }
 
             Collections.shuffle(songs);
-            songs.subList(defaultSize, songs.size()).clear();
+            if(songs.size() > defaultSize) {
+                songs.subList(defaultSize, songs.size()).clear();
+            }
 
             pl.setTitle(request.getTitle());
             pl.setSize(songs.size());
