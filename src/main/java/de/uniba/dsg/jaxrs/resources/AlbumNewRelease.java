@@ -37,12 +37,14 @@ public class AlbumNewRelease implements AlbumApi {
 		 */
 		CountryCode countryCode = null;
 		if(country != null) {
+			//Ignore cases for Country
 			countryCode = CountryCode.getByCodeIgnoreCase(country);
 			if(countryCode == null) {
 				throw new ClientRequestException(new ErrorMessage("No valid country found with specified value"));
 			}
 		}
 
+		//Request builder based on parameters
 		GetListOfNewReleasesRequest listOfNewAlbumReleasesRequest = null;
 
 		if(country == null && size == 0) {
@@ -55,14 +57,16 @@ public class AlbumNewRelease implements AlbumApi {
 			listOfNewAlbumReleasesRequest = CustomSpotifyApi.getInstance().getListOfNewReleases().country(countryCode).limit(size).build();
 		}
 
+		//Returned list from response
 		List<Release> latestAlbumList = new ArrayList<>();
 
 		try {
 
+			//Response 
 			Paging<AlbumSimplified> albumListResponse = listOfNewAlbumReleasesRequest.execute();
 
 			if(albumListResponse.getTotal() > 0) {
-
+				//Add album items from the response to List
 				AlbumSimplified[] albumSimplified = albumListResponse.getItems();
 
 				for(AlbumSimplified album : albumSimplified){
@@ -93,7 +97,7 @@ public class AlbumNewRelease implements AlbumApi {
 		} catch (IOException e) {
 			throw new ClientRequestException(new ErrorMessage("Some network error occurred while requesting"));
 		}
-        
+        //Return result album list
 		return latestAlbumList;
 	}
 
