@@ -90,7 +90,7 @@ public class AlbumNewRelease implements AlbumApi {
 				throw new ResourceFinderException("No latest release for the specified country");
 			}
 		} catch (SpotifyWebApiException e) {
-			throw new RemoteApiException(new ErrorMessage("Spotify wasn't able to find any new album for the specified country"));
+			throw new RemoteApiException(new ErrorMessage("Sorry,Could not find any new album for the specified country"));
 		} catch (IOException e) {
 			throw new ClientRequestException(new ErrorMessage("Some network error occurred while requesting"));
 		}
