@@ -1,5 +1,12 @@
 package de.uniba.dsg.models;
 
+import javax.xml.bind.annotation.XmlAccessType;
+import javax.xml.bind.annotation.XmlAccessorType;
+import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlType;
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * TODO:
  * PlaylistRequest attributes should be
@@ -7,29 +14,26 @@ package de.uniba.dsg.models;
  * - artistSeeds:List<String>, must be serialized as 'seeds'
  * - numberOfSongs:int, must be serialized as 'size'
  */
+@XmlType(propOrder = {"title", "artistSeeds", "numberOfSongs"})
+@XmlAccessorType(XmlAccessType.FIELD)
 public class PlaylistRequest {
-    private String title;
-    private String artist;
-    private int numberOfSongs;
+    @XmlElement(name = "title")
+    private String title = "";
+    @XmlElement(name = "seeds")
+    private List<String> artistSeeds = new ArrayList<String>();
+    @XmlElement(name = "size")
+    private int numberOfSongs = 0;
 
     public String getTitle() {
-        return this.title;
+        return title;
     }
     public void setTitle(String title) {
         this.title = title;
     }
 
-    public String getArtist() {
-        return this.artist;
-    }
-    public void setArtist(String artist) {
-        this.artist = artist;
-    }
+    public List<String> getArtistsSeeds() { return artistSeeds; }
+    public void setArtistSeeds(List<String> artistSeeds) { this.artistSeeds = artistSeeds; }
 
-    public int getNumberOfSongs() {
-        return this.numberOfSongs;
-    }
-    public void setNumberOfSongs(int numberOfSongs) {
-        this.numberOfSongs = numberOfSongs;
-    }
+    public int getNumberOfSongs() { return numberOfSongs; }
+    public void setNumberOfSongs(int numberOfSongs) { this.numberOfSongs = numberOfSongs; }
 }
