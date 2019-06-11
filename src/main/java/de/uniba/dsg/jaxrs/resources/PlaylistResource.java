@@ -27,32 +27,38 @@ public class PlaylistResource implements PlaylistApi {
             List<String> artistSeeds = request.getArtistsSeeds();
             ArtistResource ar = new ArtistResource();
             List<Song> songs = new ArrayList<>();
+            Playlist pl = new Playlist();
 
             int numOfSongs = 0;
-            numOfSongs = request.getNumberOfSongs();
+            numOfSongs = Integer.valueOf(request.getNumberOfSongs());
             int defaultSize = 10;
             if(numOfSongs > 0) {
                 defaultSize = numOfSongs;
             }
 
             artistSeeds.forEach(artist -> {
-                Pattern t = Pattern.compile("[a-z0-9]+", Pattern.CASE_INSENSITIVE);
-                Matcher m = t.matcher(artist);
-                while (m.find()) {
-                    List<Song> topTracks = ar.getTopTracks(artist);
+                List<Song> topTracks = ar.getTopTracks(artist);
+                songs.addAll(topTracks);
+            });
+
+            for(String artistId: artistSeeds) {
+                if(songs.size() < defaultSize) {
+                    Interpret artist = ar.getSimilarArtist(artistId);
+                    List<Song> topTracks = ar.getTopTracks(artist.getId());
                     songs.addAll(topTracks);
                 }
-            });
+            }
 
             Collections.shuffle(songs);
             songs.subList(defaultSize, songs.size()).clear();
 
-            Playlist playList = new Playlist();
-            playList.setTitle(request.getTitle());
-            playList.setSize(songs.size());
-            playList.setTracks(songs);
-            return Response.status(Response.Status.CREATED.getStatusCode()).entity(playList).build();
+            pl.setTitle(request.getTitle());
+            pl.setSize(songs.size());
+            pl.setTracks(songs);
+            return Response.status(Response.Status.CREATED.getStatusCode()).entity(pl).build();
 
+        } catch (NumberFormatException e) {
+            throw new ClientRequestException(new ErrorMessage("Please enter a number for playlist size"));
         } catch(Exception e){
             //catch any exception here
             throw new ClientRequestException(new ErrorMessage(e.getMessage()));
