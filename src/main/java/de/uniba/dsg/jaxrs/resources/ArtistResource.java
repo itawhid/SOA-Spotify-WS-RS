@@ -4,11 +4,13 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Random;
 
 import com.neovisionaries.i18n.CountryCode;
 import com.wrapper.spotify.model_objects.specification.Paging;
 import com.wrapper.spotify.model_objects.specification.Track;
 import com.wrapper.spotify.requests.data.artists.GetArtistRequest;
+import com.wrapper.spotify.requests.data.artists.GetArtistsRelatedArtistsRequest;
 import com.wrapper.spotify.exceptions.SpotifyWebApiException;
 import com.wrapper.spotify.model_objects.specification.Artist;
 
@@ -82,6 +84,40 @@ public class ArtistResource implements ArtistApi {
             }
             return songs;
         }catch (SpotifyWebApiException | IOException e) {
+            throw new RemoteApiException(new ErrorMessage("cannot find remote server"));
+        }
+    }
+    
+    @Override
+    @GET
+    @Path("{artist-id}/similar-artist")
+    public Interpret getSimilarArtist(@PathParam("artist-id") String artistId) {
+        if(artistId == null){
+            throw new ClientRequestException(new ErrorMessage("Required query parameter is missing: artist-id"));
+        }
+        
+        GetArtistsRelatedArtistsRequest getArtistsRelatedArtistsRequest = CustomSpotifyApi.getInstance().getArtistsRelatedArtists(artistId).build();
+        
+        try {
+          
+			Artist[] artists = getArtistsRelatedArtistsRequest.execute();
+
+            // exception: no artist found for provided artistId
+            if (artists == null) {
+                throw new ResourceNotFoundException(new ErrorMessage(String.format("No artist found for query param: %s", artistId)));
+            }
+            Artist artist = artists[new Random().nextInt(artists.length)];
+
+            Interpret result = new Interpret();
+            result.setId(artist.getId());
+            result.setName(artist.getName());
+            result.setGenres(Arrays.asList(artist.getGenres()));
+            result.setPopularity(artist.getPopularity());
+
+
+            return result;
+            // exception: remote api exception
+        } catch (SpotifyWebApiException | IOException e) {
             throw new RemoteApiException(new ErrorMessage("cannot find remote server"));
         }
     }

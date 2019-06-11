@@ -34,5 +34,5 @@ public interface ArtistApi {
      * Subsequent calls should not always return the same similar artist
      * Handle requests with unknown artist IDs correctly
      */
-    //Interpret getSimilarArtist(String artistId);
+    Interpret getSimilarArtist(String artistId);
 }

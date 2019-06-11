@@ -10,6 +10,7 @@ import javax.jws.WebService;
 
 import de.uniba.dsg.Configuration;
 import de.uniba.dsg.jaxws.resources.ArtistResource;
+import de.uniba.dsg.jaxws.resources.PlaylistResource;
 import de.uniba.dsg.jaxws.resources.SearchResource;
 import de.uniba.dsg.jaxws.resources.AlbumNewRelease;
 import de.uniba.dsg.models.Interpret;
@@ -47,11 +48,11 @@ public class MusicApiImpl implements MusicApi {
     public List<Song> getTopTracks(String artistId) {
         return new ArtistResource().getTopTracks(artistId);
     }
-//
-//    @Override
-//    public Interpret getSimilarArtist(String artistId) {
-//        return null;
-//    }
+
+    @Override
+    public Interpret getSimilarArtist(String artistId) {
+        return new ArtistResource().getSimilarArtist(artistId);
+    }
 
     @Override
     public List<Release> getNewReleases(String country, int size) {
@@ -60,6 +61,6 @@ public class MusicApiImpl implements MusicApi {
 
     @Override
     public Playlist createPlaylist(PlaylistRequest request) {
-        return null;
+        return new PlaylistResource().createPlaylist(request);
     }
 }
