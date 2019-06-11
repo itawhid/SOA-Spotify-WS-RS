@@ -25,90 +25,82 @@ import de.uniba.dsg.jaxrs.exceptions.RemoteApiException;
 import de.uniba.dsg.models.ErrorMessage;
 import de.uniba.dsg.models.Release;
 
-@Path("albums/new-releases") //Specify API url path
+@Path("albums/new-releases")
 
 public class AlbumNewRelease implements AlbumApi {
-
-	private static final Logger logger = Logger.getLogger(AlbumNewRelease.class.getName());
 	
 	@Override
 	@GET
 	public List<Release> getNewReleases(@QueryParam("country") String country, @QueryParam("size") int size) throws ClientRequestException {
 		
+		/**
+		 * country = list of new releases from a specific country, empty is accepted
+		 */
 		CountryCode countryCode = null;
-		
 		if(country != null) {
 			countryCode = CountryCode.getByCodeIgnoreCase(country);
 			if(countryCode == null) {
-				throw new ClientRequestException(new ErrorMessage("Invalid Country Code"));
-			} 
+				throw new ClientRequestException(new ErrorMessage("No valid country found with specified value"));
+			}
 		}
-		
+
 		/**
-		 * size param between 01 and 50
+		 * size = number of returned release objects = 0 to 100, empty is accepted
 		 */
-		if(size<0 || size>50) {
-			throw new ClientRequestException(new ErrorMessage("Invalid size parameter. Value should be between 01 and 50"));
+		if(size<0 || size>100) {
+			throw new ClientRequestException(new ErrorMessage("Number of released album should be between 01 and 100"));
 		}
-		
-		GetListOfNewReleasesRequest latestReleasedAlbumsRequest = null;
-		 
+
+		GetListOfNewReleasesRequest listOfNewAlbumReleasesRequest = null;
+
 		if(country == null && size == 0) {
-			latestReleasedAlbumsRequest = CustomSpotifyApi.getInstance().getListOfNewReleases().build();
+			listOfNewAlbumReleasesRequest = CustomSpotifyApi.getInstance().getListOfNewReleases().build();
+		}else if(country == null && size > 0) {
+			listOfNewAlbumReleasesRequest = CustomSpotifyApi.getInstance().getListOfNewReleases().limit(size).build();
+		}else if(country != null && size == 0) {
+			listOfNewAlbumReleasesRequest = CustomSpotifyApi.getInstance().getListOfNewReleases().country(countryCode).build();
+		}else if(country != null && size > 0) {
+			listOfNewAlbumReleasesRequest = CustomSpotifyApi.getInstance().getListOfNewReleases().country(countryCode).limit(size).build();
 		}
-		else if(country == null && size > 0) {
-			latestReleasedAlbumsRequest = CustomSpotifyApi.getInstance().getListOfNewReleases().limit(size).build();
-		}
-		else if(country != null && size == 0) {
-			latestReleasedAlbumsRequest = CustomSpotifyApi.getInstance().getListOfNewReleases().country(countryCode).build();
-		}
-		else if(country != null && size > 0) {
-			latestReleasedAlbumsRequest = CustomSpotifyApi.getInstance().getListOfNewReleases().country(countryCode).limit(size).build();
-		}
-		
-		Paging<AlbumSimplified> albums = null;
-		List<Release> listOfLatestRelease = new ArrayList<>();
-		
+
+		List<Release> latestAlbumList = new ArrayList<>();
+
 		try {
-			albums = latestReleasedAlbumsRequest.execute();
-			
-			logger.info("Total number of albums returned by the request: "+albums.getItems().length);
-			
-			if(albums.getTotal() > 0) {
-				AlbumSimplified[] albumSimplified = albums.getItems();
-				
+
+			Paging<AlbumSimplified> albumListResponse = listOfNewAlbumReleasesRequest.execute();
+
+			if(albumListResponse.getTotal() > 0) {
+
+				AlbumSimplified[] albumSimplified = albumListResponse.getItems();
+
 				for(AlbumSimplified album : albumSimplified){
-					
+
 					Release release = new Release();
-					
+
 					release.setTitle(album.getName());
-					
+
 					ArtistSimplified[] artists = album.getArtists();
-					
+
 					StringBuilder sb = new StringBuilder("");
-					
+
 					for(ArtistSimplified artist : artists) {
 						sb.append(artist.getName()).append(", ");
 					}
 					String artistName = sb.substring(0, sb.lastIndexOf(","));
-					
+
 					release.setArtist(artistName);
-					
-					listOfLatestRelease.add(release);
+
+					latestAlbumList.add(release);
 				}
 			}
 			else {
-				throw new ResourceFinderException("No latest released album found for the specified country");
+				throw new ResourceFinderException("No latest release for the specified country");
 			}
-		} catch (SpotifyWebApiException e) {
-			throw new RemoteApiException(new ErrorMessage("Spotify wasn't able to find any new album for the specified country"));
-		} catch (IOException e) {
-			throw new ClientRequestException(new ErrorMessage("Network error occurred"));
-		}
+		} catch (SpotifyWebApiException | IOException e) {
+            throw new RemoteApiException(new ErrorMessage("cannot find remote server"));
+        }
         
-		logger.info(listOfLatestRelease.toString());
-		
-		return listOfLatestRelease;
+		return latestAlbumList;
 	}
 
 }

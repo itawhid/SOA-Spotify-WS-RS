@@ -11,6 +11,7 @@ import javax.jws.WebService;
 import de.uniba.dsg.Configuration;
 import de.uniba.dsg.jaxws.resources.ArtistResource;
 import de.uniba.dsg.jaxws.resources.SearchResource;
+import de.uniba.dsg.jaxws.resources.AlbumNewRelease;
 import de.uniba.dsg.models.Interpret;
 import de.uniba.dsg.models.Playlist;
 import de.uniba.dsg.models.PlaylistRequest;
@@ -54,7 +55,7 @@ public class MusicApiImpl implements MusicApi {
 
     @Override
     public List<Release> getNewReleases(String country, int size) {
-        return null;
+        return new AlbumNewRelease().getNewReleases(country, size);
     }
 
     @Override
