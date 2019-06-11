@@ -44,13 +44,6 @@ public class AlbumNewRelease implements AlbumApi {
 			}
 		}
 
-		/**
-		 * size = number of returned release objects = 0 to 100, empty is accepted
-		 */
-		if(size<0 || size>100) {
-			throw new ClientRequestException(new ErrorMessage("Number of released album should be between 01 and 100"));
-		}
-
 		GetListOfNewReleasesRequest listOfNewAlbumReleasesRequest = null;
 
 		if(country == null && size == 0) {
