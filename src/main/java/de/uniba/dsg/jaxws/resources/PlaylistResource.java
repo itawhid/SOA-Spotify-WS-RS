@@ -22,7 +22,7 @@ public class PlaylistResource implements PlaylistApiSOAP {
                 .request(MediaType.APPLICATION_JSON_TYPE)
                 .post(Entity.json(request));
 
-        if (response.getStatus() == 200) {
+        if (response.getStatus() == 200 || response.getStatus() == 201) {
             Playlist createdPlaylist = response.readEntity(Playlist.class);
             return createdPlaylist;
         } else if (response.getStatus() == 400) {
