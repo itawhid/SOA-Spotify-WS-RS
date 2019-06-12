@@ -24,9 +24,7 @@ import de.uniba.dsg.jaxrs.exceptions.RemoteApiException;
 import de.uniba.dsg.jaxrs.exceptions.ResourceNotFoundException;
 import de.uniba.dsg.models.Song;
 
-import javax.ws.rs.GET;
-import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
+import javax.ws.rs.*;
 
 @Path("artists")
 public class ArtistResource implements ArtistApi {
@@ -38,15 +36,12 @@ public class ArtistResource implements ArtistApi {
             throw new ClientRequestException(new ErrorMessage("Required query parameter is missing: artist-id"));
         }
         GetArtistRequest artistRequest = CustomSpotifyApi.getInstance().getArtist(artistId).build();
-
         try {
             Artist artist = artistRequest.execute();
-
             // exception: no artist found for provided artistId
             if (artist == null) {
                 throw new ResourceNotFoundException(new ErrorMessage(String.format("No artist found for query param: %s", artistId)));
             }
-
             Interpret result = new Interpret();
             result.setId(artist.getId());
             result.setName(artist.getName());
@@ -56,8 +51,12 @@ public class ArtistResource implements ArtistApi {
 
             return result;
             // exception: remote api exception
-        } catch (SpotifyWebApiException | IOException e) {
-            throw new RemoteApiException(new ErrorMessage("cannot find remote server"));
+        }
+        catch (SpotifyWebApiException | IOException e) {
+            if(e instanceof SpotifyWebApiException)
+                throw new ResourceNotFoundException(new ErrorMessage(String.format("No artist found for query param: %s", artistId)));
+            else
+                throw new RemoteApiException(new ErrorMessage("cannot find remote server"));
         }
     }
 
@@ -65,15 +64,17 @@ public class ArtistResource implements ArtistApi {
     @GET
     @Path("{artist-id}/top-tracks")
     public List<Song> getTopTracks(@PathParam("artist-id") String artistId) {
-
         if(artistId == null){
             throw new ClientRequestException(new ErrorMessage("Required query parameter is missing: artist-id"));
         }
         GetArtistsTopTracksRequest artistTopTracksRequest = CustomSpotifyApi.getInstance().getArtistsTopTracks(artistId,CountryCode.DE).build();
         try {
             Track[] tracks = artistTopTracksRequest.execute();
+            int len = tracks.length;
+            if(len > 4 )
+                len = 5;
             List<Song> songs = new ArrayList<Song>();
-            for(int i=0; i<5 ; i++) {
+            for(int i=0; i<len ; i++) {
                 Song song = new Song();
 
                 song.setArtist(tracks[i].getArtists()[0].getName());
@@ -83,8 +84,12 @@ public class ArtistResource implements ArtistApi {
                 songs.add(song);
             }
             return songs;
-        }catch (SpotifyWebApiException | IOException e) {
-            throw new RemoteApiException(new ErrorMessage("cannot find remote server"));
+        }
+        catch (SpotifyWebApiException | IOException e) {
+            if(e instanceof SpotifyWebApiException)
+                throw new ResourceNotFoundException(new ErrorMessage(String.format("No artist found for query param: %s", artistId)));
+            else
+                throw new RemoteApiException(new ErrorMessage("cannot find remote server"));
         }
     }
     
