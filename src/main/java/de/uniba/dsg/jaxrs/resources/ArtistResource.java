@@ -123,7 +123,10 @@ public class ArtistResource implements ArtistApi {
             return result;
             // exception: remote api exception
         } catch (SpotifyWebApiException | IOException e) {
-            throw new RemoteApiException(new ErrorMessage("cannot find remote server"));
+            if(e instanceof SpotifyWebApiException)
+                throw new ResourceNotFoundException(new ErrorMessage(String.format("No artist found for query param: %s", artistId)));
+            else
+                throw new RemoteApiException(new ErrorMessage("cannot find remote server"));
         }
     }
 }
